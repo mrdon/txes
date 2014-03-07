@@ -7,6 +7,8 @@ import urllib
 
 import anyjson
 
+from treq
+
 from twisted.internet import defer, reactor, protocol
 from twisted.web import client
 from twisted.web import iweb
@@ -53,21 +55,13 @@ class HTTPConnection(object):
         if not url.startswith("http://"):
             url = "http://" + url
 
-        def decode_json(body_string):
-            return anyjson.deserialize(body_string)
-        def eb(reason):
-            reason.trap(client.error.Error)
-            status = int(reason.value.status)
-            try:
-                body = decode_json(reason.value.response)
-            except:
-                body = {'error': reason.value.response}
-            if status != 200:
-                exceptions.raiseExceptions(status, body)
-            return body
+        def request_done(request):
+            def _raise_error(body):
+                if request.code != 200:
+                    exceptions.raiseExceptions(request.code, body)
+                return body
+            return treq.json_content(request).addCallback(_raise_error)
 
-        d = client.getPage(str(url), method=method, postdata=body,
-                           headers={'Content-Type':'application/json'})
-        d.addCallback(decode_json)
-        d.addErrback(eb)
+        d = treq.request(method, str(url), data=body, persistent=False, timeout=60)
+        d.addCallback(request_done)
         return d

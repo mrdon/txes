@@ -19,7 +19,8 @@ setup(name='txes',
       zip_safe=False,
       install_requires=[
           "twisted",
-          "anyjson"
+          "anyjson",
+          "treq"
       ],
       entry_points="""
       # -*- Entry points: -*-
