@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import sys, os
 
 setup(name='txes',
-      version='0.3.7',
+      version='0.3.8.dev0',
       description="Twisted interface to elasticsearch",
       long_description="""\
 """,
